@@ -1,0 +1,241 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>weakref &#8212; Bibliothèques Python 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="colorama" href="../colorama/index.html" />
+    <link rel="prev" title="secrets" href="../secrets/index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="weakref">
+<span id="weakref-tutorial"></span><h1><code class="docutils literal notranslate"><span class="pre">weakref</span></code><a class="headerlink" href="#weakref" title="Permalink to this headline">¶</a></h1>
+<p>Par Anthony Gillioz <a class="footnote-reference" href="#ag" id="id1">[1]</a></p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#module-weakref" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">weakref</span></code></a> est un module de python qui permet au programmeur de créer des références faibles sur des objets.
+Une référence faible sur un objet ne va pas garder cet objet en vie, si les seuls références sur cet objet est une weakref,
+le ramasse-miettes est alors libre de détruire l’objet référencé. Ce qui ne pourrait pas être faisable avec des références forte.</p>
+<p><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#module-gc" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gc</span></code></a> est un module qui met à disposition du programmeur une interface pour gérer manuellement le ramasse-miettes. Il permet entre autres,
+de désactiver ou de forcer la collection des ressources, ainsi que d’atteindre les objets que le collecteur a trouvés mais ne peut pas libérer.</p>
+<div class="section" id="reference-forte">
+<h3>Référence (forte)<a class="headerlink" href="#reference-forte" title="Permalink to this headline">¶</a></h3>
+<p>En Python, tous les objets, dans tous les cas sont accédé par références. Les références sont des pointeurs sur des objets,
+ils vont pointer à l’endroit où se trouve l’objet en mémoire.
+Il y a aussi un compteur de référence qui va s’incrémenter à chaque fois qu’une référence est créée sur un objet,
+et c’est seulement quand ce compteur est à zéro que l’objet va être détruit par le ramasse-miettes.</p>
+</div>
+<div class="section" id="reference-faible">
+<h3>Référence faible<a class="headerlink" href="#reference-faible" title="Permalink to this headline">¶</a></h3>
+<p>Les références faibles (weakref) permettent de créer des références sur des objets sans augmenter le compteur du ramasse-miettes.
+Le module <a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#module-weakref" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">weakref</span></code></a> permet de créer et utilisé les références faibles sur les objets. Une des principales utilités de ce module est pour les caches et le mapping de gros objets en mémoire.</p>
+<dl class="docutils">
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#weakref.ref" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ref</span></code></a>:</dt>
+<dd>Retourne une référence faible de l’objet;</dd>
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#weakref.proxy" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">proxy()</span></code></a>:</dt>
+<dd>Retourne une référence faible de l’objet, mais génère une erreur si l’objet qui essaie d’être atteint n’existe pas;</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Tous les objets ne supportent pas les weakref. Par exemple les <code class="docutils literal notranslate"><span class="pre">list</span></code> et les <code class="docutils literal notranslate"><span class="pre">dict</span></code> ne supporte pas directement les weakref
+mais peuvent le faire si l’on les dérive. Pour plus d’information sur les objets supportés.
+Voir: <a class="reference external" href="https://docs.python.org/3.6/extending/newtypes.html#weakref-support" title="(in Python v3.6)"><span>Weak Reference Support</span></a>.</p>
+</div>
+</div>
+<div class="section" id="ramasse-miettes">
+<h3>Ramasse miettes<a class="headerlink" href="#ramasse-miettes" title="Permalink to this headline">¶</a></h3>
+<p>En Python, l’allocation et la libération de la mémoire se font automatiquement. Le programmeur n’a pas besoin d’allouer ou de supprimer la mémoire allouée comme en C ou en C++.
+La principale stratégie de Python pour libérer la mémoire est de se baser sur le système de comptage des références. À chaque fois qu’un référence est créée le compteur de l’objet
+s’incrémente et à chaque fois que la référence est supprimée le compteur est décrémenté. C’est seulement quand le compteur est à zéro que la mémoire est libérée.</p>
+<p>Le module <a class="reference external" href="https://docs.python.org/3.6/library/gc.html#module-gc" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gc</span></code></a> permet d’interagir avec le ramasse-miettes.</p>
+</div>
+</div>
+<div class="section" id="exemple-d-utilisation">
+<h2>Exemple d’utilisation<a class="headerlink" href="#exemple-d-utilisation" title="Permalink to this headline">¶</a></h2>
+<p>Dans cet exemple nous allons montrer l’utilité que peut avoir l’utilisation des weakref. Prenons la classe triviale ci-dessous:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;This is a simple example of weakref.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleWeakref</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Class of a simple strong ref.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;Constructor.&quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">__destroy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;Destructor.&quot;&quot;&quot;</span>
+                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;destroy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Et que nous exécutons le code ci-dessous, avec des références fortes sur les objets créés. Il faut que les deux références sur
+l’objet soient détruites pour que le <em>ramasse-miettes</em> libère la mémoire de l’objet.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ExampleWeakref</span><span class="p">()</span>
+<span class="go">created</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">b</span>
+<span class="go">destroyed</span>
+</pre></div>
+</div>
+<p>Alors que si nous n’avions qu’une seule référence forte sur l’objet et une faible comme dans l’exemple ci-dessous. La suppression
+ce fait directement après la destruction de la référence forte. Grace à cela nous pouvons savoir exactement quand l’espace mémoire sera libéré.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">weakref</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">ExampleWeakref</span><span class="p">()</span>
+<span class="go">created</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">a</span>
+<span class="go">destroyed</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">del</span></code> supprime la référence et n’est pas un appel direct à <code class="docutils literal notranslate"><span class="pre">__destroy__</span></code>.</p>
+</div>
+</div>
+<div class="section" id="reference-circulaire">
+<h2>Référence circulaire<a class="headerlink" href="#reference-circulaire" title="Permalink to this headline">¶</a></h2>
+<p>Les références circulaires arrivent quand deux objets se référencent mutuellement, ce qui va augmenter leurs compteurs de référence. Et au moment où l’on n’utilise plus
+ces objets, le ramasse-miettes ne va pas pouvoir les supprimer vu que leur compteur n’est pas à zéro. C’est le genre de faiblesses que peuvent avoir les ramasse-miettes traditionnels,
+mais le ramasse-miettes python va utiliser un détecteur de références circulaires et quand même supprimer l’objet s’il en trouve.</p>
+</div>
+<div class="section" id="module-gc">
+<h2>Module <a class="reference external" href="https://docs.python.org/3.6/library/gc.html#module-gc" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gc</span></code></a><a class="headerlink" href="#module-gc" title="Permalink to this headline">¶</a></h2>
+<p>Le module gc, comme expliqué dans l’introduction permet de gérer manuellement le ramasse-miettes. Dans cette section, je présente les principales fonctions du module <a class="reference external" href="https://docs.python.org/3.6/library/gc.html#module-gc" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gc</span></code></a>.</p>
+<p>Le ramasse-miettes tiens à jour trois listes de génération de collections (threshold0, threshold1, threshold2), ces listes permettant de mettre les objets dans la bonne
+liste en fonction du nombre de collection auquel ils ont survécu.
+Les nouveaux objets sont placés dans la liste de génération 0 (threshold0). Quand la première libération de la mémoire a lieu, et que des objets ont survécu,
+ils passent alors dans la liste de génération 1 (threshold1). À ce moment-là, s’ils survivent de-nouveau au ramasse-miettes, alors ils passent dans la dernière liste de génération 2
+(threshold2).
+L’utilité de ces listes est que plus l’objet est dans une liste de génération élevée, plus il se passera de temps avant que le ramasse-miettes revienne pour le collecter.</p>
+<dl class="docutils">
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#gc.disable" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">disable()</span></code></a>:</dt>
+<dd>Permet d’activer le ramasse-miettes.</dd>
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#gc.disable" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">disable()</span></code></a>:</dt>
+<dd>Permet de désactiver le ramasse-miettes.</dd>
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#gc.collect" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">collect()</span></code></a>:</dt>
+<dd>Permet de forcer l’utilisation du ramasse-miettes.</dd>
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#gc.garbage" title="(in Python v3.6)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">garbage</span></code></a>:</dt>
+<dd>Retourne la liste des objets qui ne sont plus référencés mais qui ne peuvent pas être libéré.</dd>
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#gc.set_threshold" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_threshold()</span></code></a>:</dt>
+<dd>Permet de changer le temps des différentes</dd>
+<dt><a class="reference external" href="https://docs.python.org/3.6/library/gc.html#gc.get_count" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_count()</span></code></a></dt>
+<dd>Retourne le nombre d’objet dans chaque liste de génération</dd>
+</dl>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+<p>Le module <a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#module-weakref" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">weakref</span></code></a> est obligatoire pour les applications ou l’on a besoin de savoir exactement ce qui se passe en mémoire où si notre mémoire est limitée.
+<em>weakref</em> est un module puissant, les exemples présentés sur cette page sont très basiques et sont destinés à comprendre le module sans rentrer en profondeur dans les détails.
+Pour approfondir vos connaissances sur ce sujet vous pouvez vous rendre sur la doc officiel : <a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#module-weakref" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">weakref</span></code></a>.</p>
+<p>En mode debug, le module <a class="reference external" href="https://docs.python.org/3.6/library/gc.html#module-gc" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gc</span></code></a> est un module complémentaire au module <a class="reference external" href="https://docs.python.org/3.6/library/weakref.html#module-weakref" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">weakref</span></code></a>, il permet d’avoir une plus grande maîtrise de ce qui se passe en mémoire.</p>
+<blockquote>
+<div><p><em>Les robots n’ont ni choix à faire ni décisions à prendre.</em></p>
+<p class="attribution">&mdash;Travis fan club</p>
+</div></blockquote>
+<table class="docutils footnote" frame="void" id="ag" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>&lt;<a class="reference external" href="mailto:anthony&#46;gillioz&#37;&#52;&#48;he-arc&#46;ch">anthony<span>&#46;</span>gillioz<span>&#64;</span>he-arc<span>&#46;</span>ch</a>&gt;</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table des Matières</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">weakref</span></code></a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#reference-forte">Référence (forte)</a></li>
+<li><a class="reference internal" href="#reference-faible">Référence faible</a></li>
+<li><a class="reference internal" href="#ramasse-miettes">Ramasse miettes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exemple-d-utilisation">Exemple d’utilisation</a></li>
+<li><a class="reference internal" href="#reference-circulaire">Référence circulaire</a></li>
+<li><a class="reference internal" href="#module-gc">Module <code class="docutils literal notranslate"><span class="pre">gc</span></code></a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../secrets/index.html" title="Chapitre précédent"><code class="docutils literal notranslate"><span class="pre">secrets</span></code></a></li>
+      <li>Next: <a href="../colorama/index.html" title="Chapitre suivant"><code class="docutils literal notranslate"><span class="pre">colorama</span></code></a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Cette page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/weakref/index.rst.txt"
+            rel="nofollow">Montrer le code source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Recherche rapide</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017, HE-Arc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/weakref/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

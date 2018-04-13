@@ -1,0 +1,365 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>enum &#8212; Bibliothèques Python 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="f-strings" href="../fstrings/index.html" />
+    <link rel="prev" title="Dunders" href="../dunders/index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="enum">
+<span id="enum-tutorial"></span><h1><code class="docutils literal notranslate"><span class="pre">enum</span></code><a class="headerlink" href="#enum" title="Permalink to this headline">¶</a></h1>
+<p>Par Axel Bento da Silva <a class="footnote-reference" href="#abds" id="id1">[1]</a></p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="definition">
+<h3>Définition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
+<p>L’enumération est un liste de noms symboliques lié à des valeurs constantes, on peu donc avec l’enumération remplacé des valeurs entières peu parlantes par des nom plus logiques.</p>
+<p>Le principale attrait de l’enumération est donc d’écrire du code plus lisible et humain.</p>
+<p>En python le “enum.py” est un module qui contient 4 classes d’enumération différentes : Enum, IntEnum, Flag, intFlag, il contient en plus quelques fonctionnalités supplémentaires tel que le auto ou le unique
+que nous allons voir.</p>
+</div>
+</div>
+<div class="section" id="utilisation">
+<h2>Utilisation<a class="headerlink" href="#utilisation" title="Permalink to this headline">¶</a></h2>
+<p>Il faut faire attention à ce pourquoi on l’utilise, une enumération n’est nécessaire que pour représenté un objet très simple ou l’état d’un objet plus complexe.</p>
+<div class="section" id="un-mauvais-exemple">
+<h3>Un mauvais exemple<a class="headerlink" href="#un-mauvais-exemple" title="Permalink to this headline">¶</a></h3>
+<p>Un mauvais exmple d’utilisation est par exemple celui de créer un py:mod:<cite>enum</cite> pour représenter des animaux :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="k">class</span> <span class="nc">Animal</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Dog</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Cat</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Bird</span> <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>Un animal est un objet bien trop complexe qui se définit par plein d’attributs (son nom, son poids, sa taille, etc…), il est donc bien plus censé de créer une classe animal à part,
+qui pourra d’ailleurs implémenter des méthodes telle que manger(), dormir(), etc… et dans ce cas on pourrais envisager d’ajouter un attribut
+enumérer pour définir l’espèces.</p>
+</div>
+<div class="section" id="un-bon-exemple">
+<h3>Un bon exemple<a class="headerlink" href="#un-bon-exemple" title="Permalink to this headline">¶</a></h3>
+<p>Un bon exemple d’utilisation est celui du feu vert, on peu représenté l’état d’un feu rouge par une simple variable entière qui varie de 0 à 2, mais cela nécéssite qu’on garde
+en tête quel chiffre correpond à quoi, etc…
+Il suffit donc de remplacer cette variable entirère par une enumération de ce type :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">StateLight</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="go">        RED = 0</span>
+<span class="go">        ORANGE = 1</span>
+<span class="go">        GREEN = 2</span>
+</pre></div>
+</div>
+<p>Dans cette exemple ci-dessus, bien que les états soit plus parlant, le fait d’utiliser des valeurs numériques peu poser des problèmes dans la suite du programme, par exemple si
+le feu est actuellement à l’état ORANGE, et que nous voulons afficher la valeur de ce feu c’est la valeur 1 qui apparaîtra :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">&gt;&gt;&gt;light = StateLight[&#39;ORANGE&#39;]</span>
+<span class="go">&gt;&gt;&gt;light.name</span>
+<span class="go">&#39;ORANGE&#39;</span>
+<span class="go">&gt;&gt;&gt;light.value</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Pour contrer ce problème il suffit de remplacer les valeurs numériques par des string plus parlant :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">StateLight</span><span class="p">(</span><span class="n">Enum</span><span class="p">)</span>
+<span class="go">        RED = &quot;Rouge&quot;</span>
+<span class="go">        ORANGE = &quot;Orange&quot;</span>
+<span class="go">        GREEN = &quot;Vert&quot;</span>
+
+<span class="go">&gt;&gt;&gt;light = StateLight[&#39;RED&#39;]</span>
+<span class="go">&gt;&gt;&gt;light.name</span>
+<span class="go">&#39;RED&#39;</span>
+<span class="go">&gt;&gt;&gt;light.value</span>
+<span class="go">&#39;rouge&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="exemple-concret">
+<h3>Exemple concret<a class="headerlink" href="#exemple-concret" title="Permalink to this headline">¶</a></h3>
+<p>Comme exemple concret nous avons de nombreux librairies de différents language qui propose une enumération de couleurs de base (Color.Red, Color.Blue, etc…).
+Donc plutôt que de devoir connaître tous les codes hexadécimaux des couleurs, le programmeur peu utilier leurs noms :</p>
+<p><a class="reference external" href="https://matplotlib.org/2.0.0/examples/color/named_colors.html#color-named-colors" title="(in Matplotlib v2.0.0)"><span>color example code: named_colors.py</span></a></p>
+</div>
+</div>
+<div class="section" id="attribut-du-module">
+<h2>Attribut du module<a class="headerlink" href="#attribut-du-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="auto">
+<h3>Auto<a class="headerlink" href="#auto" title="Permalink to this headline">¶</a></h3>
+<p>Auto renvoie des valeurs automatiques pour les enums, par defaut dans un Enum classique Auto renvoie la position
+de son élément dans l’enumération :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Number</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">ONE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">TWO</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">THREE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Number</span><span class="o">.</span><span class="n">ONE</span>
+<span class="go">&lt;Number.ONE: 1&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Number</span><span class="o">.</span><span class="n">TWO</span>
+<span class="go">&lt;Number.TWO: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Number</span><span class="o">.</span><span class="n">THREE</span>
+<span class="go">&lt;Number.THREE: 3&gt;</span>
+</pre></div>
+</div>
+<p>La fonction utilisé par auto() est _generate_next_value_(), qui peut être re-écrite pour par exemple renvoyer le nom de l’élément comme ceci :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">AutoName</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_generate_next_value_</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">last_values</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">name</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">CarBrand</span><span class="p">(</span><span class="n">AutoName</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">AUDI</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">TOYOTA</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">OPEL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">BMW</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">CarBrand</span><span class="p">)</span>
+<span class="go">[&lt;CarBrand.AUDI: &#39;AUDI&#39;&gt;, &lt;CarBrand.TOYOTA: &#39;TOYOTA&#39;&gt;, &lt;CarBrand.OPEL: &#39;OPEL&#39;&gt;, &lt;CarBrand.BMW: &#39;BMW&#39;&gt;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="unique">
+<h3>Unique()<a class="headerlink" href="#unique" title="Permalink to this headline">¶</a></h3>
+<p>Unique va renvoyer une erreur si deux éléments d’une enumération ont la même valeur.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@unique</span>
+<span class="go">class Mistake(Enum):</span>
+<span class="go">    ONE = 1</span>
+<span class="go">    TWO = 2</span>
+<span class="go">    THREE = 2</span>
+</pre></div>
+</div>
+<p>Retournera une erreur !</p>
+</div>
+<div class="section" id="id2">
+<h3>Enum<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://docs.python.org/3.6/library/enum.html#enum.Enum" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a> est la classe de base pour la création d’enumération. On peu définir ces enumérations de différentes façon.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">StateLight</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="go">        RED = 1</span>
+<span class="go">        ORANGE = 2</span>
+<span class="go">        GREEN = 3</span>
+</pre></div>
+</div>
+<p>est égal à :</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">StateLight</span> <span class="o">=</span> <span class="n">Enum</span><span class="p">(</span><span class="s1">&#39;Light&#39;</span><span class="p">,</span> <span class="s1">&#39;RED ORANGE GREEN&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">List</span><span class="p">(</span><span class="n">StateLight</span><span class="p">)</span>
+<span class="go">[&lt;Light.RED: 1&gt;, &lt;Light.ORANGE: 2&gt;, &lt;Light.GREEN: 3&gt;,]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="intenum">
+<h3>IntEnum<a class="headerlink" href="#intenum" title="Permalink to this headline">¶</a></h3>
+<p>IntEnum dérive de <a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, il permet de donnée des valeurs entière aux enumération, mais surout de pouvoir les comparé avec des int, par extension il peut donc faire des comparaisons entre
+deux enumération de type IntEnum.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Color</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="go">    RED = 1</span>
+<span class="go">    GREEN = 2</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Request</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="go">    POST = 1</span>
+<span class="go">    GET = 2</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="go">    False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="go">    True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span> <span class="o">==</span> <span class="n">Request</span><span class="o">.</span><span class="n">POST</span>
+<span class="go">    True</span>
+</pre></div>
+</div>
+<p>Attention les intEnum ne peuvent pas être comparé à des Enum normales même si le valeurs de l’Enum sont numériques.</p>
+</div>
+<div class="section" id="intflag">
+<h3>IntFlag<a class="headerlink" href="#intflag" title="Permalink to this headline">¶</a></h3>
+<p>IntFlag est également basé sur int, mais il permet d’utiliser des opérations sur les bits comme le et logique.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntFlag</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Perm</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
+<span class="go">    X = 1</span>
+<span class="go">    W = 2</span>
+<span class="go">    R = 4</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">|</span> <span class="mi">2</span>
+<span class="go">    &lt;Perm.W: 2&gt;</span>
+</pre></div>
+</div>
+<p>Vous pouvez également utiliser ces opérations entre deux IntFlag différent, cela retournera toujours un IntFlag.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span>
+<span class="go">    &lt;Perm.R|W: 6&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">&amp;</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span>
+<span class="go">    &lt;Perm.0: 0&gt;</span>
+</pre></div>
+</div>
+<p>A partir de la vous pouvez convertir le retour dans d’autres type.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">&amp;</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+<span class="go">    False</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span><span class="p">)</span>
+<span class="go">    6</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="flag">
+<h3>Flag<a class="headerlink" href="#flag" title="Permalink to this headline">¶</a></h3>
+<p>Comme IntFlag les Flags peuvent être combinés avec des opérations logiques, sans être des valeurs numériques.
+Bien que les valeurs puissent être donné manuellement il est conseillé d’utiliser le paramètre auto(), qui donne
+automatiquement des valeurs.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Color</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+<span class="go">   RED = auto()</span>
+<span class="go">   BLUE = auto()</span>
+<span class="go">   GREEN = auto()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span>
+<span class="go">  &lt;Color.RED: 1&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">BLUE</span>
+<span class="go">  &lt;Color.BLUE: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">GREEN</span>
+<span class="go">  &lt;Color.GREEN: 4&gt;</span>
+</pre></div>
+</div>
+<p>Il est également possible donner des valeurs qui sont des retours d’opération d’autres Flag.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Color</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="n">RED</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>   <span class="n">BLUE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="gp">... </span>   <span class="n">GREEN</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+<span class="go"> ...   WHITE = RED | BLUE | GREEN</span>
+
+<span class="go"> &gt;&gt;&gt; Color.WHITE</span>
+<span class="go"> &lt;Color.WHITE: 7&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+<p>L’enumération est, bien que non obligatoire, une bonne pratique en programmation, elle simplifie la compréhension du code,  notament lorsque l’on travaille en groupe.
+Et bien qu’elle ne soit que peu utilisé aujourd’hui il important de l’avoir testé un jour pour un dévellopeur, par exemple en python qui donne avec son module <a class="reference external" href="https://docs.python.org/3.6/library/enum.html#module-enum" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">enum</span></code></a>, plusieurs
+outils intéressant.</p>
+<blockquote>
+<div><p><em>Actually, Python enums are pretty OK</em></p>
+<p class="attribution">&mdash;Karol Kuczmarski</p>
+</div></blockquote>
+<table class="docutils footnote" frame="void" id="abds" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>&lt;<a class="reference external" href="mailto:axel&#46;bentodasilva&#37;&#52;&#48;he-arc&#46;ch">axel<span>&#46;</span>bentodasilva<span>&#64;</span>he-arc<span>&#46;</span>ch</a>&gt;</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="bibliographie">
+<h2>Bibliographie<a class="headerlink" href="#bibliographie" title="Permalink to this headline">¶</a></h2>
+<p>Sam&amp;Max :
+&lt;<a class="reference external" href="http://sametmax.com/les-enums-en-python/">http://sametmax.com/les-enums-en-python/</a>&gt;</p>
+<p>Karol Kuczmarski :
+&lt;<a class="reference external" href="http://xion.io/post/code/python-enums-are-ok.html">http://xion.io/post/code/python-enums-are-ok.html</a>&gt;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table des Matières</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">enum</span></code></a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#definition">Définition</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utilisation">Utilisation</a><ul>
+<li><a class="reference internal" href="#un-mauvais-exemple">Un mauvais exemple</a></li>
+<li><a class="reference internal" href="#un-bon-exemple">Un bon exemple</a></li>
+<li><a class="reference internal" href="#exemple-concret">Exemple concret</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#attribut-du-module">Attribut du module</a><ul>
+<li><a class="reference internal" href="#auto">Auto</a></li>
+<li><a class="reference internal" href="#unique">Unique()</a></li>
+<li><a class="reference internal" href="#id2">Enum</a></li>
+<li><a class="reference internal" href="#intenum">IntEnum</a></li>
+<li><a class="reference internal" href="#intflag">IntFlag</a></li>
+<li><a class="reference internal" href="#flag">Flag</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li><a class="reference internal" href="#bibliographie">Bibliographie</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../dunders/index.html" title="Chapitre précédent">Dunders</a></li>
+      <li>Next: <a href="../fstrings/index.html" title="Chapitre suivant">f-strings</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Cette page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/enum/index.rst.txt"
+            rel="nofollow">Montrer le code source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Recherche rapide</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017, HE-Arc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/enum/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

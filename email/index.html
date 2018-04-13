@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>E-mail (smtplib / imaplib) &#8212; Bibliothèques Python 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="hashlib" href="../hashlib/index.html" />
+    <link rel="prev" title="bisect" href="../bisect/index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="e-mail-smtplib-imaplib">
+<span id="email-tutorial"></span><h1>E-mail (<code class="docutils literal notranslate"><span class="pre">smtplib</span></code> / <code class="docutils literal notranslate"><span class="pre">imaplib</span></code>)<a class="headerlink" href="#e-mail-smtplib-imaplib" title="Permalink to this headline">¶</a></h1>
+<p>Par Karim Gehrig <a class="footnote-reference" href="#kg" id="id1">[1]</a></p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Les mails sont la base de communication et d’alerte à ce jour,</p>
+<p>les mail se découpe en deux partie, <em>envoi</em> et <em>réception</em>, respectivement
+les protocoles <a class="reference external" href="https://tools.ietf.org/html/rfc5321">SMTP</a>, <a class="reference external" href="https://tools.ietf.org/html/rfc1939">POP3</a> et <a class="reference external" href="https://tools.ietf.org/html/rfc3501">IMAP</a>.</p>
+<p>Nous allons voir des exemple de code simple, et divers astuce afin de comprendre
+le principe de base.</p>
+<div class="section" id="smtp">
+<h3>SMTP<a class="headerlink" href="#smtp" title="Permalink to this headline">¶</a></h3>
+<p>Pour l’envoi de mail, on utilise <a class="reference external" href="https://docs.python.org/3.6/library/smtplib.html#module-smtplib" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">smtplib</span></code></a>.
+L’envoi est plus courant que la réception pour un script.</p>
+<p>Par exemple si on veut être averti d’un accès sur un serveur ou encore une
+alerte d’un fichier <em>log</em> ou autres.</p>
+<p>Voici un exemple de code utilisant la gestion de l’HTML dans les messages.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">C’est bien si on utilise de l’HTML de également mettre le texte en
+<code class="docutils literal notranslate"><span class="pre">plain/text</span></code>, afin de support pour les programme qui ne gérerai pas ou
+ont le HTML de désactivé.</p>
+</div>
+<p>On commence par importer <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">smtplib</span></code></p>
+<div class="highlight-python3 notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">smtplib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">email.mime.multipart</span> <span class="k">import</span> <span class="n">MIMEMultipart</span>
+<span class="kn">from</span> <span class="nn">email.mime.text</span> <span class="k">import</span> <span class="n">MIMEText</span>
+
+<span class="n">me</span> <span class="o">=</span> <span class="s2">&quot;&lt;ADRESSE MAIL EXPEDITEUR&gt;&quot;</span>
+<span class="n">you</span> <span class="o">=</span> <span class="s2">&quot;&lt;ADRESSE MAIL DESTINATAIRE&gt;&quot;</span>
+
+<span class="c1"># Create message container - the correct MIME type is multipart/alternative.</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="n">MIMEMultipart</span><span class="p">(</span><span class="s1">&#39;alternative&#39;</span><span class="p">)</span>
+<span class="n">msg</span><span class="p">[</span><span class="s1">&#39;Subject&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;SUJET&gt;&quot;</span>
+<span class="n">msg</span><span class="p">[</span><span class="s1">&#39;From&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;NAME&gt; &lt;&quot;</span><span class="o">+</span><span class="n">me</span><span class="o">+</span><span class="s2">&quot;&gt;&quot;</span>
+<span class="n">msg</span><span class="p">[</span><span class="s1">&#39;To&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">you</span>
+
+<span class="c1"># Create the body of the message (a plain-text and an HTML version).</span>
+<span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&lt;VOTRE TEXT&gt;&quot;</span>
+<span class="n">html</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">&lt;html&gt;</span>
+<span class="s2">&lt;head&gt;&lt;/head&gt;</span>
+<span class="s2">&lt;body&gt;</span>
+<span class="s2">    &lt;VOTRE CODE HTML&gt;</span>
+<span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1"># Record the MIME types of both parts - text/plain and text/html.</span>
+<span class="n">part1</span> <span class="o">=</span> <span class="n">MIMEText</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;plain&#39;</span><span class="p">)</span>
+<span class="n">part2</span> <span class="o">=</span> <span class="n">MIMEText</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">)</span>
+
+<span class="c1"># Attach parts into message container.</span>
+<span class="c1"># According to RFC 2046, the last part of a multipart message, in this case</span>
+<span class="c1"># the HTML message, is best and preferred.</span>
+
+<span class="n">msg</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">part1</span><span class="p">)</span>
+<span class="n">msg</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">part2</span><span class="p">)</span>
+
+<span class="c1"># Send the message via SMTP server.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;&lt;SERVEUR SMTP&gt;:&lt;PORT&gt;&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">me</span><span class="p">,</span><span class="s1">&#39;&lt;MOT DE PASSE SERVEUR SMTP&gt;&#39;</span><span class="p">)</span>
+<span class="c1"># sendmail function takes 3 arguments: sender&#39;s address, recipient&#39;s address</span>
+<span class="c1"># and message to send - here it is sent as one string.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="n">you</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">as_string</span><span class="p">())</span>
+<span class="n">s</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>Changer ce qu’il y a dans les <code class="docutils literal notranslate"><span class="pre">&lt;&gt;</span></code> avec vos informations.</p>
+<p>Ce code simple permet d’envoyer un mail avec uun serveur relai SMTP en mode html et plain/text</p>
+</div>
+<div class="section" id="imap">
+<h3>IMAP<a class="headerlink" href="#imap" title="Permalink to this headline">¶</a></h3>
+<p>Pour la réception de mail <a class="reference external" href="https://docs.python.org/3.6/library/imaplib.html#module-imaplib" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">imaplib</span></code></a>.</p>
+<div class="highlight-python3 notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">imaplib</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">imaplib</span><span class="o">.</span><span class="n">IMAP4</span><span class="p">(</span><span class="s2">&quot;&lt;SERVEUR SMTP&gt;&quot;</span><span class="p">)</span>
+<span class="n">M</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="s2">&quot;&lt;login&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;MOT DE PASSE&gt;&quot;</span><span class="p">)</span>
+<span class="n">M</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="n">typ</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;ALL&#39;</span><span class="p">)</span>
+
+<span class="n">data_idx</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="n">num</span><span class="o">=</span><span class="n">data_idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="n">typ</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s1">&#39;(RFC822)&#39;</span><span class="p">)</span>
+<span class="c1">#print(&#39;Message %s\n%s\n&#39; % (num, data[0][1]))</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+<span class="n">M</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">M</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>Changer ce qu’il y a dans les <code class="docutils literal notranslate"><span class="pre">&lt;&gt;</span></code> avec vos informations.</p>
+<p>Ce code simple récupère le dernier mail sur le serveur et affiche la source
+du message décodé en UTF8</p>
+<table class="docutils footnote" frame="void" id="kg" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>&lt;<a class="reference external" href="mailto:karim&#46;gehrig&#37;&#52;&#48;he-arc&#46;ch">karim<span>&#46;</span>gehrig<span>&#64;</span>he-arc<span>&#46;</span>ch</a>&gt;</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table des Matières</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">E-mail (<code class="docutils literal notranslate"><span class="pre">smtplib</span></code> / <code class="docutils literal notranslate"><span class="pre">imaplib</span></code>)</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#smtp">SMTP</a></li>
+<li><a class="reference internal" href="#imap">IMAP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../bisect/index.html" title="Chapitre précédent"><code class="docutils literal notranslate"><span class="pre">bisect</span></code></a></li>
+      <li>Next: <a href="../hashlib/index.html" title="Chapitre suivant"><code class="docutils literal notranslate"><span class="pre">hashlib</span></code></a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Cette page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/email/index.rst.txt"
+            rel="nofollow">Montrer le code source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Recherche rapide</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017, HE-Arc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/email/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,301 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Expressions régulières (re) &#8212; Bibliothèques Python 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="secrets" href="../secrets/index.html" />
+    <link rel="prev" title="multiprocessing" href="../multiprocessing/index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="expressions-regulieres-re">
+<span id="re-tutorial"></span><h1>Expressions régulières (<code class="docutils literal notranslate"><span class="pre">re</span></code>)<a class="headerlink" href="#expressions-regulieres-re" title="Permalink to this headline">¶</a></h1>
+<p>Par Julien Feuillade <a class="footnote-reference" href="#jf" id="id1">[1]</a></p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Les expressions régulières sont utilisées dans pratiquement tous les langages. C’est un puissant outil qui permet de vérifier si le contenu d’une variable a la forme de ce que l’on attend.
+Ils permettent aussi de modifier ou de supprimer tous les éléments indésirables dans une variable.</p>
+</div>
+<div class="section" id="les-bases-de-la-syntaxe">
+<h2>Les bases de la syntaxe<a class="headerlink" href="#les-bases-de-la-syntaxe" title="Permalink to this headline">¶</a></h2>
+<p>Une des premières choses à réaliser dans la conception d’une expression régulière, c’est de définir le motif (pattern en anglais).</p>
+<p>Pour construire ces motifs, vous avez besoin de créer une structure formée de caractères littéraux, puis de symboles qui sont définis en tant que méta caractères et délimiteurs et qui seront utilisés séparément ou en combinaison à l’intérieur d’un même groupement ou d’une classe.</p>
+<p>On utilisera différents types de syntaxe comme :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>^     Marque le début de la chaine, la ligne.
+$     Marque la fin d&#39;une chaine, la ligne.
+.     N&#39;importe quel caractère.
+*     0, 1 ou plusieurs occurrences.
++     1 ou plusieurs occurrences.
+?     0 ou 1 occurrence.
+|     Alternative - ou reconnaît l&#39;un ou l&#39;autre.
+[ ]   Tous les caractères énumérés dans la classe.
+[^ ]  Tous les caractères sauf ceux énumérés.
+( )   Utilisée pour limiter la portée d&#39;un masque ou de l&#39;alternative.
+</pre></div>
+</div>
+<p>Ainsi que de groupes de caractères :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\w      Les lettres (w pour word).
+\d      Les chiffres (d pour digit).
+\s      Les espaces (s pour spaces).
+[A-Z]   Les majuscules.
+[abd;_] Les lettres a, b, et d, le point-virgule (;), et l’underscore (_).
+</pre></div>
+</div>
+<p>Prenons un exemple :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k</span><span class="o">|</span>\<span class="n">d</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span> <span class="p">:</span> <span class="n">la</span> <span class="n">lettre</span> <span class="n">k</span><span class="p">,</span> <span class="n">ou</span> <span class="n">bien</span> <span class="n">deux</span> <span class="n">chiffres</span><span class="o">.</span>
+<span class="n">BRA</span><span class="p">{,</span><span class="mi">10</span><span class="p">}</span> <span class="p">:</span> <span class="n">on</span> <span class="n">attend</span> <span class="n">à</span> <span class="n">ce</span> <span class="n">que</span> <span class="n">le</span> <span class="n">segment</span> <span class="n">BRA</span> <span class="n">ne</span> <span class="n">soit</span> <span class="n">pas</span> <span class="n">présent</span> <span class="n">du</span> <span class="n">tout</span> <span class="n">ou</span> <span class="n">présent</span> <span class="n">jusqu</span><span class="s1">&#39;à 10 fois consécutives.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="la-bibliotheque-re">
+<h2>La bibliothèque <code class="docutils literal notranslate"><span class="pre">re</span></code><a class="headerlink" href="#la-bibliotheque-re" title="Permalink to this headline">¶</a></h2>
+<p>Afin de mettre les différentes expressions en place, la bibliothèque <a class="reference external" href="https://docs.python.org/3.6/library/re.html#module-re" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">re</span></code></a> nous est proposé avec ces différentes fonctions qui permettra essentiellement de rechercher / modifier / supprimer des expressions.</p>
+</div>
+<div class="section" id="re-match">
+<h2>re.match()<a class="headerlink" href="#re-match" title="Permalink to this headline">¶</a></h2>
+<p>La fonction <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.match" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">match()</span></code></a> va permettre de vérifier la correspondance avec la chaîne de caractères.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> est l’expression à faire correspondre.</li>
+<li><code class="docutils literal notranslate"><span class="pre">string</span></code> est la chaîne d’origine.</li>
+</ul>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;B(.)?NJO(.)?R&quot;</span><span class="p">,</span> <span class="s2">&quot;BONJOUR&quot;</span><span class="p">)</span>
+<span class="go">&lt;_sre.SRE_Match object; span=(0, 7), match=&#39;BONJOUR&#39;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="re-search">
+<h2>re.search()<a class="headerlink" href="#re-search" title="Permalink to this headline">¶</a></h2>
+<p>Afin de rechercher une expression, on utilisera la fonction <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.search" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> est l’expression à rechercher.</li>
+<li><code class="docutils literal notranslate"><span class="pre">string</span></code> est la chaîne d’origine.</li>
+</ul>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;Cats are smarter than dogs&quot;</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">searchObj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;(.*) are (.*?) .*&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">searchObj</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;searchObj.group() : &quot;</span><span class="p">,</span> <span class="n">searchObj</span><span class="o">.</span><span class="n">group</span><span class="p">())</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;searchObj.group(1) : &quot;</span><span class="p">,</span> <span class="n">searchObj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;searchObj.group(2) : &quot;</span><span class="p">,</span> <span class="n">searchObj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nothing found!!&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">searchObj.group() :  Cats are smarter than dogs</span>
+<span class="go">searchObj.group(1) :  Cats</span>
+<span class="go">searchObj.group(2) :  smarter</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="re-match-vs-re-search">
+<h2>re.match() vs re.search()<a class="headerlink" href="#re-match-vs-re-search" title="Permalink to this headline">¶</a></h2>
+<p>La fonction <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.match" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">match()</span></code></a> va vérifier une correspondance seulement au début de la chaîne, tandis que <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.search" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> va vérifier une correspondance sur toute la chaîne.</p>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="c1"># Pas de correspondance</span>
+<span class="go">    True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span> <span class="c1"># Une correspondance</span>
+<span class="go">&lt;_sre.SRE_Match object; span=(2, 3), match=&#39;c&#39;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="re-split">
+<h2>re.split()<a class="headerlink" href="#re-split" title="Permalink to this headline">¶</a></h2>
+<p>La fonction <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.split" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> va permettre de découper une chaîne <code class="docutils literal notranslate"><span class="pre">string</span></code> selon un pattern.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">maxsplit</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> est l’expression avec lequelle on séparera.</li>
+<li><code class="docutils literal notranslate"><span class="pre">string</span></code> est la chaîne d’origine.</li>
+<li><code class="docutils literal notranslate"><span class="pre">maxsplit</span></code> est le nombre de séparations faite au maximum.</li>
+</ul>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;Je Suis; Le, Gars,Qui,      Joue&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[;,\s]\s*&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+<span class="go">[&#39;Je&#39;, &#39;Suis&#39;, &#39;Le&#39;, &#39;Gars&#39;, &#39;Qui&#39;, &#39;Joue&#39;]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[;,\s]\s*&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">[&#39;Je&#39;, &#39;Suis; Le, Gars,Qui,      Joue&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="re-sub">
+<h2>re.sub()<a class="headerlink" href="#re-sub" title="Permalink to this headline">¶</a></h2>
+<p>Afin de remplacer des données, on peut passer par la fonction <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.sub" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sub()</span></code></a> :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">replace</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> est l’expression à rechercher.</li>
+<li><code class="docutils literal notranslate"><span class="pre">replace</span></code> est le remplacent de cette expression.</li>
+<li><code class="docutils literal notranslate"><span class="pre">string</span></code> est la chaîne d’origine.</li>
+</ul>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phone</span> <span class="o">=</span> <span class="s2">&quot;2004-959-559&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;#.*$&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">phone</span><span class="p">)</span> <span class="c1"># Suppresion des guillemets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Phone Num : &quot;</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+<span class="go">Phone Num :  2004-959-559</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\D&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">phone</span><span class="p">)</span> <span class="c1"># Suppresion de tout sauf les digits</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Phone Num : &quot;</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+<span class="go">Phone Num :  2004959559</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="re-compile">
+<h2>re.compile()<a class="headerlink" href="#re-compile" title="Permalink to this headline">¶</a></h2>
+<p>Si, dans votre programme, vous utilisez plusieurs fois les mêmes expressions régulières, il peut être utile de les compiler. La bibliothèque <a class="reference external" href="https://docs.python.org/3.6/library/re.html#module-re" title="(in Python v3.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">re</span></code></a> propose en effet de conserver votre expression régulière sous la forme d’un objet que vous pouvez stocker dans votre programme. On utilisera ainsi la fonction <a class="reference external" href="https://docs.python.org/3.6/library/re.html#re.compile" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pattern</span></code> est l’expression à compiler.</li>
+</ul>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">batRegex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Bat(wo)?man&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mo1</span> <span class="o">=</span> <span class="n">batRegex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;The Adventures of Batman&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mo1</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="go">&#39;Batman&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mo2</span> <span class="o">=</span> <span class="n">batRegex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;The Adventures of Batwoman&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mo2</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="go">&#39;Batwoman&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="les-entrees-a-plusieurs-lignes">
+<h2>Les entrées à plusieurs lignes<a class="headerlink" href="#les-entrees-a-plusieurs-lignes" title="Permalink to this headline">¶</a></h2>
+<p>Les drapeaux MULTILINE contrôle comment la correspondance par le pattern traite des instructions d’ancrage pour le texte contenant des caractères de plusieurs lignes. Lorsque le mode multiligne est activé, les règles d’ancrage pour ^ et $ s’appliquent au début et à la fin de chaque ligne, en plus de la chaîne entière.</p>
+<p>Voici un exemple sans l’utilisation du drapeau multiline :</p>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;Hello</span>
+<span class="gp">... </span><span class="s1">World&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\S+$&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<p>Voici un exemple avec l’utilisation du drapeau multiline :</p>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;Hello</span>
+<span class="gp">... </span><span class="s1">World&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\S+$&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+<span class="go">[&#39;Hello&#39;, &#39;World&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+<p>Avec cette documentation vous pouvez avoir une bonne idée de ce qu’est une expression régulière, de comment la construire et de comment l’utiliser. Ne nous leurrons cependant pas, l’apprentissage n’est pas aussi facile, il faut les apprivoiser, « jouer » avec elles, mais le jeu en vaut la chandelle.</p>
+<table class="docutils footnote" frame="void" id="jf" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>&lt;<a class="reference external" href="mailto:julien&#46;feuillade&#37;&#52;&#48;he-arc&#46;ch">julien<span>&#46;</span>feuillade<span>&#64;</span>he-arc<span>&#46;</span>ch</a>&gt;</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table des Matières</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Expressions régulières (<code class="docutils literal notranslate"><span class="pre">re</span></code>)</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#les-bases-de-la-syntaxe">Les bases de la syntaxe</a></li>
+<li><a class="reference internal" href="#la-bibliotheque-re">La bibliothèque <code class="docutils literal notranslate"><span class="pre">re</span></code></a></li>
+<li><a class="reference internal" href="#re-match">re.match()</a></li>
+<li><a class="reference internal" href="#re-search">re.search()</a></li>
+<li><a class="reference internal" href="#re-match-vs-re-search">re.match() vs re.search()</a></li>
+<li><a class="reference internal" href="#re-split">re.split()</a></li>
+<li><a class="reference internal" href="#re-sub">re.sub()</a></li>
+<li><a class="reference internal" href="#re-compile">re.compile()</a></li>
+<li><a class="reference internal" href="#les-entrees-a-plusieurs-lignes">Les entrées à plusieurs lignes</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../multiprocessing/index.html" title="Chapitre précédent"><code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code></a></li>
+      <li>Next: <a href="../secrets/index.html" title="Chapitre suivant"><code class="docutils literal notranslate"><span class="pre">secrets</span></code></a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Cette page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/re/index.rst.txt"
+            rel="nofollow">Montrer le code source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Recherche rapide</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016-2017, HE-Arc.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/re/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
